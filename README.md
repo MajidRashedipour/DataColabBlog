@@ -2,19 +2,17 @@
 
 ## Run
 
-1. Clone the repository.
+<details>
+  <summary>Click for run application details</summary>
+
+1. Clone the repository and navigate to the project directory.
 
    ```
    git clone https://github.com/MajidRashedipour/DataColabBlog.git
-   ```
-
-2. Navigate to the project directory.
-
-   ```
    cd DataColabBlog
    ```
 
-3. Setup environment.
+2. Setup environment.
 
    MacOS and Linux:
    ```
@@ -29,7 +27,7 @@
    
    then open `.env` file and change variables value
 
-4. Create python environment and activate.
+3. Create python environment and active it.
 
    MacOS and Linux:
    ```
@@ -43,32 +41,31 @@
    ./.venv/Scripts/activate
    ```
 
-5. Install packages.
+4. Install packages and migrate database.
 
    ```
    pip install -r requirements.txt
-   ```
-
-6. Run this command for database migrations
-
-   ```
+   mkdir ./app/migrations/versions
    alembic revision --autogenerate
    alembic upgrade head
    ```
 
-7. Run application.
+5. Run application.
 
    ```
    fastapi run app/main.py
    ```
 
-7. Open api document on: (http://127.0.0.0:8000/docs)
+   then open api document on: http://127.0.0.0:8000/docs
 
 ## Run with Docker.
 
+<details>
+  <summary>Click for run application with docker details</summary>
+
 1. Install docker.
 
-   Download docker from (https://www.docker.com) and install.
+   Download docker from https://www.docker.com and install.
 
    **OR**
 
@@ -82,7 +79,7 @@
    apt install docker-compose -y
    ```
 
-2. Build the Docker containers.
+2. Build the Docker container.
 
    ```
    docker-compose build
@@ -94,7 +91,7 @@
    docker-compose up
    ```
 
-   on background
+   run in the background
 
    ```
    docker-compose up -d
