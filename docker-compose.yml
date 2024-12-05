@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+      build: .
+      ports:
+        - "80:8000"
+      environment:
+       - DATABASE_URL=${DATABASE_URL}
+      env_file:
+        - .env
