@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN mkdir ./app/migrations/versions
 RUN alembic revision --autogenerate
 RUN alembic upgrade head
 
