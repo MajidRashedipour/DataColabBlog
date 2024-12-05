@@ -56,7 +56,7 @@
    fastapi run app/main.py
    ```
 
-   then open api document on: http://127.0.0.0:8000/docs
+   then open api document on: http://127.0.0.0:8000/docs or http://127.0.0.0:8000/redoc
 
 </details>
 
@@ -120,4 +120,6 @@
    ```
    docker-compose up -d
    ```
+
+   then open api document on: http://127.0.0.0:8000/docs or http://127.0.0.0:8000/redoc
 </details>
