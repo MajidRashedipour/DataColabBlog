@@ -60,12 +60,34 @@
 
 </details>
 
-## Run with Docker.
+## Run with Docker
 
 <details>
   <summary>Click for run application with docker details</summary>
 
-1. Install docker.
+1. Clone the repository and navigate to the project directory.
+
+   ```
+   git clone https://github.com/MajidRashedipour/DataColabBlog.git
+   cd DataColabBlog
+   ```
+
+2. Setup environment.
+
+   MacOS and Linux:
+   ```
+   cp .env.example .env
+   nano .env
+   ```
+
+   Windows:
+   ```
+   copy .env.example .env
+   ```
+   
+   then open `.env` file and change variables value
+
+3. Install docker.
 
    Download docker from https://www.docker.com and install.
 
@@ -81,13 +103,13 @@
    apt install docker-compose -y
    ```
 
-2. Build the Docker container.
+4. Build the Docker container.
 
    ```
    docker-compose build
    ```
 
-3. Run application.
+5. Run application.
 
    ```
    docker-compose up
