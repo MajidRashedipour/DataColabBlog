@@ -19,6 +19,7 @@
    MacOS and Linux:
    ```
    cp .env.example .env
+   nano .env
    ```
 
    Windows:
@@ -26,7 +27,7 @@
    copy .env.example .env
    ```
    
-   and change values
+   then open `.env` file and change variables value
 
 4. Create python environment and activate.
 
@@ -48,7 +49,7 @@
    pip install -r requirements.txt
    ```
 
-6. Migrate database.
+6. Run this command for database migrations
 
    ```
    alembic revision --autogenerate
@@ -61,13 +62,13 @@
    fastapi run app/main.py
    ```
 
-7. Open api document: (`http://127.0.0.0:8000/docs`)
+7. Open api document on: (http://127.0.0.0:8000/docs)
 
 ## Run with Docker.
 
 1. Install docker.
 
-   Download docker from (`https://www.docker.com`) and install.
+   Download docker from (https://www.docker.com) and install.
 
    **OR**
 
@@ -84,5 +85,17 @@
 2. Build the Docker containers.
 
    ```
-   docker-compose up --build
+   docker-compose build
+   ```
+
+3. Run application.
+
+   ```
+   docker-compose up
+   ```
+
+   on background
+
+   ```
+   docker-compose up -d
    ```
