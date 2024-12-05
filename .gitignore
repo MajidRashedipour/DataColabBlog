@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 sqlite.db
-*/migrations/versions/*.py
+app/migrations/versions/*.py
