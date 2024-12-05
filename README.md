@@ -16,12 +16,12 @@
 
 3. Setup environment.
 
-   * MacOS and Linux:
+   MacOS and Linux:
    ```
    cp .env.example .env
    ```
 
-   * Windows:
+   Windows:
    ```
    copy .env.example .env
    ```
@@ -30,13 +30,13 @@
 
 4. Create python environment and activate.
 
-   * MacOS and Linux:
+   MacOS and Linux:
    ```
    python3 -m venv .venv
    source ./.venv/bin/activate
    ```
 
-   * Windows:
+   Windows:
    ```
    python -m venv .venv
    ./.venv/Scripts/activate
@@ -61,24 +61,19 @@
    fastapi run app/main.py
    ```
 
-7. Open api document.
-   Enter this address to your browser:
-
-   ```
-   http://127.0.0.0:8000/docs
-   ```
+7. Open api document: (`http://127.0.0.0:8000/docs`)
 
 ## Run with Docker.
 
 1. Install docker.
 
-   Download docker and install from `https://www.docker.com`
+   Download docker from (`https://www.docker.com`) and install.
 
    **OR**
 
    Install with commnad:
 
-   * Linux:
+   Linux:
 
    ```
    apt update && apt upgrade -y

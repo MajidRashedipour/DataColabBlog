@@ -162,4 +162,3 @@ cython_debug/
 #.idea/
 
 sqlite.db
-app/migrations/versions/*.py
