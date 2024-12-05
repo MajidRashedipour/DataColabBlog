@@ -58,6 +58,8 @@
 
    then open api document on: http://127.0.0.0:8000/docs
 
+</details>
+
 ## Run with Docker.
 
 <details>
@@ -96,3 +98,4 @@
    ```
    docker-compose up -d
    ```
+</details>
