@@ -2,12 +2,12 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import SQLModel, create_engine, Session
 
-from app.config import Config
+from app.config import settings
 
 
-sqlite_url = Config.DATABASE_URL
+database_url = settings.DATABASE_URL
 
-engine = create_engine(sqlite_url, connect_args={"check_same_thread": False})
+engine = create_engine(database_url)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

@@ -1,21 +1,46 @@
+from datetime import datetime
 from typing import Annotated
-from fastapi import APIRouter, status, Header
-from fastapi.exceptions import HTTPException
+from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import select
 from app.database import SessionDep
-from app.models import User, AccessToken, RefreshToken
+from app.models.users import User, Token
 from app.schemas.users import UserRegisterSchema, UserLoginSchema
-from app.utils import generate_password_hash, verify_password, validation_email, generate_access_token, generate_refresh_token
+from app.utils import generate_password_hash, verify_password, validation_email, generate_token, decode_token
 
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 router = APIRouter()
+
+def get_user(user_id, session: SessionDep):
+    user = session.get(User, user_id)
+    if user:
+        return user
+    return
+
+def verify_token(jwt_token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
+    token = session.exec(select(Token).where(Token.token==jwt_token)).first()
+    if token and token.expire_at >= datetime.now() and not token.is_revoke:
+        return token.token
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
+
+def get_current_user(jwt_token: Annotated[str, Depends(verify_token)], session: SessionDep):
+    payload = decode_token(token=jwt_token)
+    if payload:
+        user_id = payload.get('sub')
+        user = get_user(user_id, session)
+        if user:
+            return user
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
+
 
 @router.post("/register/", status_code=status.HTTP_201_CREATED)
 def create_user(user_data: UserRegisterSchema, session: SessionDep):
     user_email = user_data.email
     user = session.exec(select(User).where(User.email==user_email)).first()
     if user and user.email == user_email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Email already exist')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Email already exist')
     if not validation_email(user_email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid Email')
     user_password = user_data.password
@@ -38,8 +63,8 @@ def login_user(user_data: UserLoginSchema, session: SessionDep):
         user_password = user_data.password
         verify_pass = verify_password(user_password, user.password)
         if verify_pass:
-            access_token = generate_access_token(user.id, session)
-            refresh_token = generate_refresh_token(user.id, access_token, session)
+            access_token = generate_token(user.id, session)
+            refresh_token = generate_token(user.id, session, is_refresh=True)
             if access_token and refresh_token:
                 token = {
                     'Access': access_token,
@@ -50,29 +75,11 @@ def login_user(user_data: UserLoginSchema, session: SessionDep):
 
 
 @router.post("/logout/", status_code=status.HTTP_200_OK)
-def logout_user(session: SessionDep, authorization: Annotated[str | None, Header()] = None):
-    if authorization:
-        token = authorization.split(' ')[1]
-        access_token = session.exec(select(AccessToken).where(AccessToken.token==token)).first()
-        refresh_token = session.exec(select(RefreshToken).where(RefreshToken.token==token)).first()
-        if access_token:
-            access_token.is_revoke = True
-            session.add(access_token)
-            session.commit()
-            refresh_token = session.exec(select(RefreshToken).where(RefreshToken.access_token_id==access_token.id)).first()
-            if refresh_token:
-                refresh_token.is_revoke = True
-                session.add(refresh_token)
-                session.commit()
-                return {'success': True}
-        elif refresh_token:
-            access_token = session.exec(select(AccessToken).where(AccessToken.refresh_tokens==refresh_token)).first()
-            refresh_token.is_revoke = True
-            session.add(refresh_token)
-            session.commit()
-            if access_token:
-                access_token.is_revoke = True
-                session.add(access_token)
-                session.commit()
-                return {'success': True}
+def logout_user(jwt_token: Annotated[str, Depends(verify_token)], session: SessionDep):
+    token = session.exec(select(Token).where(Token.token==jwt_token)).first()
+    if token:
+        token.is_revoke = True
+        session.add(token)
+        session.commit()
+        return {'success': True}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User unauthorized')

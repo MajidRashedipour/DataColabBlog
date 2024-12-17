@@ -1,38 +1,26 @@
 from typing import Annotated
-from datetime import datetime
-from fastapi import APIRouter, HTTPException, status, Header
+from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel import select
 
 from app.database import SessionDep
-from app.models import Post, User, Comment, AccessToken, RefreshToken
+from app.models.users import User
+from app.models.posts import Post, Comment
+from app.routers import users
 from app.schemas.comments import CreateCommentSchema, ReadCommentSchema
-from app.utils import decode_token
+
 
 router = APIRouter()
 
 @router.post("/{post_id}/", status_code=status.HTTP_201_CREATED)
-def create_post_comment(post_id: int, comment_data: CreateCommentSchema, session: SessionDep, authorization: Annotated[str | None, Header()] = None):
-    if authorization:
-        token_type = authorization.split(' ')[0]
-        token = authorization.split(' ')[1]
-        access_token = session.exec(select(AccessToken).where(AccessToken.token==token)).first()
-        refresh_token = session.exec(select(RefreshToken).where(RefreshToken.token==token)).first()
-        if (access_token and access_token.token_type == token_type and access_token.expire_at >= datetime.now() and not access_token.is_revoke) or (refresh_token and refresh_token.token_type == token_type and refresh_token.expire_at >= datetime.now() and not refresh_token.is_revoke):
-            token = access_token if access_token else refresh_token
-            payload = decode_token(token.token)
-            user_id = payload.get('sub')
-            user = session.get(User, user_id)
-            if user:
-                post = session.get(Post, post_id)
-                if post:
-                    new_comment = Comment(content=comment_data.content, author_id=user.id, post_id=post.id)
-                    session.add(new_comment)
-                    session.commit()
-                    session.refresh(new_comment)
-                    return {'success': True}
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Post not found')
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User unauthorized')
+def create_post_comment(post_id: int, comment_data: CreateCommentSchema, user: Annotated[User, Depends(users.get_current_user)], session: SessionDep):
+    post = session.get(Post, post_id)
+    if post:
+        new_comment = Comment(content=comment_data.content, user_id=user.id, post_id=post.id)
+        session.add(new_comment)
+        session.commit()
+        session.refresh(new_comment)
+        return {'success': True}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Post not found')
 
 
 # @router.put("/update/{comment_id}/", status_code=status.HTTP_200_OK)
